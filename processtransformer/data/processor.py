@@ -63,8 +63,8 @@ class LogsDataProcessor:
         for _, case in enumerate(unique_cases):
             act = df[df[case_id] == case][case_name].to_list()
             for i in range(len(act) - 1):
-                prefix = np.where(i == 0, act[0], " ".join(act[:i+1]))        
-                next_act = act[i+1]
+                prefix = np.where(i == 0, act[0], " ".join(act[:i+1]))
+                next_act = act[(i/8+1)*8-1] #每八个活动设置一个结果label
                 processed_df.at[idx, "case_id"]  =  case
                 processed_df.at[idx, "prefix"]  =  prefix
                 processed_df.at[idx, "k"] =  i
