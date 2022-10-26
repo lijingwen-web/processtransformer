@@ -30,7 +30,7 @@ class LogsDataProcessor:
         df = pd.read_csv(self._filepath)
         df = df[self._org_columns]
         df.columns = ["case:concept:name", 
-            "concept:name", "time:timestamp"]
+            "concept:name", "time:timestamp","label:name"]
         df["concept:name"] = df["concept:name"].str.lower()
         df["concept:name"] = df["concept:name"].str.replace(" ", "-")
         df["time:timestamp"] = df["time:timestamp"].str.replace("/", "-")
@@ -55,19 +55,20 @@ class LogsDataProcessor:
             metadata_file.write(coded_json)
 
     def _next_activity_helper_func(self, df):
-        case_id, case_name = "case:concept:name", "concept:name"
+        case_id, case_name ,label= "case:concept:name", "concept:name","label:name"
         processed_df = pd.DataFrame(columns = ["case_id", 
         "prefix", "k", "next_act"])
         idx = 0
         unique_cases = df[case_id].unique()
         for _, case in enumerate(unique_cases):
             act = df[df[case_id] == case][case_name].to_list()
+            res = df[df[case_id] == case][label].to_list()
             for i in range(len(act) - 1):
                 prefix = np.where(i == 0, act[0], " ".join(act[:i+1]))
-                next_act = act[i+1] #每八个活动设置一个结果label
+                next_act = res[len(act) - 1] #每个case最后一个活动设置结果label
                 processed_df.at[idx, "case_id"]  =  case
                 processed_df.at[idx, "prefix"]  =  prefix
-                processed_df.at[idx, "k"] =  i
+                processed_df.at[idx, "k"] =  i+1
                 processed_df.at[idx, "next_act"] = next_act
                 idx = idx + 1
         return processed_df
